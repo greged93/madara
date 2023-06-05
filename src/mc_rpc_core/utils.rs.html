@@ -199,9 +199,6 @@
 <a href="#199" id="199">199</a>
 <a href="#200" id="200">200</a>
 <a href="#201" id="201">201</a>
-<a href="#202" id="202">202</a>
-<a href="#203" id="203">203</a>
-<a href="#204" id="204">204</a>
 </pre><pre class="rust"><code><span class="kw">use </span>std::collections::BTreeMap;
 <span class="kw">use </span>std::vec;
 
@@ -210,15 +207,16 @@
 <span class="kw">use </span>base64::Engine;
 <span class="kw">use </span>cairo_vm::types::program::Program;
 <span class="kw">use </span>flate2::read::GzDecoder;
+<span class="kw">use </span>frame_support::inherent::BlockT;
+<span class="kw">use </span>mp_digest_log::find_starknet_block;
+<span class="kw">use </span>mp_starknet::block::Block <span class="kw">as </span>StarknetBlock;
 <span class="kw">use </span>mp_starknet::execution::types::{
     ContractClassWrapper, EntryPointTypeWrapper, EntryPointWrapper, Felt252Wrapper, MaxEntryPoints,
 };
 <span class="kw">use </span>mp_starknet::transaction::types::{DeclareTransaction, DeployAccountTransaction, InvokeTransaction, Transaction};
-<span class="kw">use </span>sp_core::U256;
+<span class="kw">use </span>sp_api::HeaderT;
+<span class="kw">use </span>sp_blockchain::HeaderBackend;
 <span class="kw">use </span>sp_runtime::{BoundedBTreeMap, BoundedVec};
-<span class="kw">use </span>starknet_api::api_core::{calculate_contract_address, ClassHash, ContractAddress <span class="kw">as </span>StarknetContractAddress};
-<span class="kw">use </span>starknet_api::hash::StarkFelt;
-<span class="kw">use </span>starknet_api::transaction::{Calldata, ContractAddressSalt};
 <span class="kw">use </span>starknet_core::types::{
     BroadcastedDeclareTransaction, BroadcastedDeployAccountTransaction, BroadcastedInvokeTransaction,
     BroadcastedTransaction, ContractClass, EntryPointsByType, FieldElement, FlattenedSierraClass,
@@ -260,9 +258,8 @@
     <span class="kw">match </span>request {
         BroadcastedTransaction::Invoke(invoke_tx) =&gt; to_invoke_tx(invoke_tx).map(|inner| inner.from_invoke(chain_id)),
         BroadcastedTransaction::Declare(<span class="kw">_</span>) =&gt; <span class="prelude-val">Err</span>(StarknetError::FailedToReceiveTransaction.into()), <span class="comment">/* TODO: add support once #341 is supported */
-        </span>BroadcastedTransaction::DeployAccount(deploy_account_tx) =&gt; {
-            to_deploy_account_tx(deploy_account_tx).map(|inner| inner.from_deploy(chain_id))
-        }
+        </span>BroadcastedTransaction::DeployAccount(deploy_account_tx) =&gt; to_deploy_account_tx(deploy_account_tx)
+            .and_then(|inner| inner.from_deploy(chain_id).map_err(|e| <span class="macro">anyhow!</span>(e))),
     }
 }
 
@@ -288,12 +285,9 @@
 }
 
 <span class="kw">pub fn </span>to_deploy_account_tx(tx: BroadcastedDeployAccountTransaction) -&gt; <span class="prelude-ty">Result</span>&lt;DeployAccountTransaction&gt; {
-    <span class="kw">let </span>contract_address_salt = tx.contract_address_salt.to_bytes_be();
+    <span class="kw">let </span>contract_address_salt = tx.contract_address_salt.into();
 
     <span class="kw">let </span>account_class_hash = tx.class_hash;
-
-    <span class="kw">let </span>calldata =
-        tx.constructor_calldata.iter().filter_map(|f| StarkFelt::new(f.to_bytes_be()).ok()).collect::&lt;Vec&lt;<span class="kw">_</span>&gt;&gt;();
 
     <span class="kw">let </span>signature = tx
         .signature
@@ -303,33 +297,21 @@
         .try_into()
         .map_err(|<span class="kw">_</span>| <span class="macro">anyhow!</span>(<span class="string">&quot;failed to bound signatures Vec&lt;H256&gt; by MaxArraySize&quot;</span>))<span class="question-mark">?</span>;
 
-    <span class="kw">let </span>sender_address = calculate_contract_address(
-        ContractAddressSalt(StarkFelt(contract_address_salt)),
-        ClassHash(StarkFelt(account_class_hash.to_bytes_be())),
-        <span class="kw-2">&amp;</span>Calldata(calldata.into()),
-        StarknetContractAddress::default(),
-    )
-    .map_err(|e| <span class="macro">anyhow!</span>(<span class="string">&quot;Failed to calculate contract address: {e}&quot;</span>))<span class="question-mark">?
-    </span>.<span class="number">0
-    </span>.<span class="number">0
-    </span>.into();
-
     <span class="kw">let </span>calldata = tx
         .constructor_calldata
         .iter()
         .map(|f| (<span class="kw-2">*</span>f).into())
         .collect::&lt;Vec&lt;Felt252Wrapper&gt;&gt;()
         .try_into()
-        .map_err(|<span class="kw">_</span>| <span class="macro">anyhow!</span>(<span class="string">&quot;failed to bound calldata Vec&lt;U256&gt; by MaxArraySize&quot;</span>))<span class="question-mark">?</span>;
+        .map_err(|<span class="kw">_</span>| <span class="macro">anyhow!</span>(<span class="string">&quot;failed to bound calldata Vec&lt;U256&gt; by MaxCalldataSize&quot;</span>))<span class="question-mark">?</span>;
 
     <span class="kw">let </span>nonce = Felt252Wrapper::from(tx.nonce);
     <span class="kw">let </span>max_fee = Felt252Wrapper::from(tx.max_fee);
 
     <span class="prelude-val">Ok</span>(DeployAccountTransaction {
         version: <span class="number">1_u8</span>,
-        sender_address,
         calldata,
-        salt: U256::from(contract_address_salt),
+        salt: contract_address_salt,
         signature,
         account_class_hash: account_class_hash.into(),
         nonce,
@@ -405,6 +387,18 @@
             .unwrap(),
     );
     entry_points_by_type
+}
+
+<span class="doccomment">/// Returns the current Starknet block from the block header&#39;s digest
+</span><span class="kw">pub fn </span>get_block_by_block_hash&lt;B, C&gt;(client: <span class="kw-2">&amp;</span>C, block_hash: &lt;B <span class="kw">as </span>BlockT&gt;::Hash) -&gt; <span class="prelude-ty">Option</span>&lt;StarknetBlock&gt;
+<span class="kw">where
+    </span>B: BlockT,
+    C: HeaderBackend&lt;B&gt;,
+{
+    <span class="kw">let </span>header = client.header(block_hash).ok().flatten()<span class="question-mark">?</span>;
+    <span class="kw">let </span>digest = header.digest();
+    <span class="kw">let </span>block = find_starknet_block(digest).ok()<span class="question-mark">?</span>;
+    <span class="prelude-val">Some</span>(block)
 }
 </code></pre></div>
 </section></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="mc_rpc_core" data-themes="" data-resource-suffix="" data-rustdoc-version="1.69.0-nightly (34e6673a0 2023-02-25)" data-search-js="search-14421e1532aead08.js" data-settings-js="settings-f0c5c39777a9a2f6.js" data-settings-css="settings-0bcba95ff279c1db.css" ></div></body></html>
