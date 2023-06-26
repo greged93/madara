@@ -6,8 +6,8 @@ use sp_runtime::traits::ValidateUnsigned;
 use sp_runtime::transaction_validity::{TransactionSource, TransactionValidityError, ValidTransaction};
 use starknet_crypto::FieldElement;
 
-use super::mock::*;
-use super::utils::{get_contract_class, sign_message_hash};
+use crate::tests::mock::*;
+use crate::tests::utils::{get_contract_class, sign_message_hash};
 use crate::Error;
 
 #[test]

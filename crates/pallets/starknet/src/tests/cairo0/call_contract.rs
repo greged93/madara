@@ -4,8 +4,8 @@ use mp_starknet::transaction::types::InvokeTransaction;
 use sp_core::ConstU32;
 use sp_runtime::BoundedVec;
 
-use super::constants::TOKEN_CONTRACT_CLASS_HASH;
-use super::mock::*;
+use crate::tests::constants::TOKEN_CONTRACT_CLASS_HASH;
+use crate::tests::mock::*;
 
 #[test]
 fn given_call_contract_call_works() {

@@ -1,4 +1,4 @@
-use super::mock::{account_helper, AccountType};
+use crate::tests::mock::{account_helper, AccountType};
 
 #[test]
 fn given_salt_should_calculate_new_contract_addr() {

@@ -4,8 +4,8 @@ use mp_starknet::transaction::types::{DeclareTransaction, Transaction, TxType};
 use sp_runtime::traits::ValidateUnsigned;
 use sp_runtime::transaction_validity::TransactionSource;
 
-use super::mock::*;
-use super::utils::get_contract_class;
+use crate::tests::mock::*;
+use crate::tests::utils::get_contract_class;
 use crate::Error;
 
 #[test]

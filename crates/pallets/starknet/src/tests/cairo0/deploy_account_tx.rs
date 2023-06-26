@@ -4,9 +4,9 @@ use mp_starknet::transaction::types::{DeployAccountTransaction, EventWrapper};
 use sp_runtime::traits::ValidateUnsigned;
 use sp_runtime::transaction_validity::TransactionSource;
 
-use super::mock::*;
-use super::utils::sign_message_hash;
 use crate::tests::constants::ACCOUNT_PUBLIC_KEY;
+use crate::tests::mock::*;
+use crate::tests::utils::sign_message_hash;
 use crate::{Error, Event, StorageView};
 
 #[test]

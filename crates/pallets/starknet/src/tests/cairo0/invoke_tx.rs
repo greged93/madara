@@ -13,10 +13,12 @@ use sp_runtime::transaction_validity::{TransactionSource, TransactionValidityErr
 use starknet_core::utils::get_selector_from_name;
 use starknet_crypto::FieldElement;
 
-use super::constants::{BLOCKIFIER_ACCOUNT_ADDRESS, MULTIPLE_EVENT_EMITTING_CONTRACT_ADDRESS, TEST_CONTRACT_ADDRESS};
-use super::mock::*;
-use super::utils::sign_message_hash;
 use crate::message::Message;
+use crate::tests::constants::{
+    BLOCKIFIER_ACCOUNT_ADDRESS, MULTIPLE_EVENT_EMITTING_CONTRACT_ADDRESS, TEST_CONTRACT_ADDRESS,
+};
+use crate::tests::mock::*;
+use crate::tests::utils::sign_message_hash;
 use crate::tests::{
     get_invoke_argent_dummy, get_invoke_braavos_dummy, get_invoke_dummy, get_invoke_emit_event_dummy,
     get_invoke_nonce_dummy, get_invoke_openzeppelin_dummy, get_storage_read_write_dummy,

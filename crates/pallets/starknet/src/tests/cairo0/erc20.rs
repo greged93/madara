@@ -4,9 +4,9 @@ use mp_starknet::crypto::commitment::calculate_invoke_tx_hash;
 use mp_starknet::execution::types::{ContractClassWrapper, Felt252Wrapper};
 use mp_starknet::transaction::types::{EventWrapper, InvokeTransaction};
 
-use super::mock::*;
-use super::utils::get_contract_class_wrapper;
 use crate::tests::constants::TOKEN_CONTRACT_CLASS_HASH;
+use crate::tests::mock::*;
+use crate::tests::utils::get_contract_class_wrapper;
 use crate::Event;
 
 lazy_static! {
