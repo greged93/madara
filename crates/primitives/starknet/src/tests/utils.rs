@@ -28,8 +28,8 @@ pub const TEST_FAULTY_ACCOUNT_CONTRACT_CLASS_HASH: &str = "0x113";
 pub const SECURITY_TEST_CLASS_HASH: &str = "0x114";
 
 // Paths.
-pub const TEST_CONTRACT_PATH: &str = "../../../cairo-contracts/build/test.json";
-pub const SECURITY_TEST_CONTRACT_PATH: &str = "../../../cairo-contracts/build/security_test.json";
+pub const TEST_CONTRACT_PATH: &str = "../../../cairo0-contracts/build/test.json";
+pub const SECURITY_TEST_CONTRACT_PATH: &str = "../../../cairo0-contracts/build/security_test.json";
 
 pub const PEDERSEN_ZERO_HASH: &str = "0x49EE3EBA8C1600700EE1B87EB599F16716B0B1022947733551FDE4050CA6804";
 

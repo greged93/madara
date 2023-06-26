@@ -14,15 +14,15 @@ use starknet_core::utils::get_selector_from_name;
 use starknet_crypto::FieldElement;
 
 use crate::message::Message;
-use crate::tests::constants::{
-    BLOCKIFIER_ACCOUNT_ADDRESS, MULTIPLE_EVENT_EMITTING_CONTRACT_ADDRESS, TEST_CONTRACT_ADDRESS,
-};
-use crate::tests::mock::*;
-use crate::tests::utils::sign_message_hash;
-use crate::tests::{
+use crate::tests::cairo0::{
     get_invoke_argent_dummy, get_invoke_braavos_dummy, get_invoke_dummy, get_invoke_emit_event_dummy,
     get_invoke_nonce_dummy, get_invoke_openzeppelin_dummy, get_storage_read_write_dummy,
 };
+use crate::tests::constants::{
+    BLOCKIFIER_ACCOUNT_ADDRESS_CAIRO_0, MULTIPLE_EVENT_EMITTING_CONTRACT_ADDRESS_CAIRO_0, TEST_CONTRACT_ADDRESS_CAIRO_0,
+};
+use crate::tests::mock::*;
+use crate::tests::utils::sign_message_hash;
 use crate::{Error, Event, StorageView};
 
 #[test]
@@ -55,7 +55,7 @@ fn given_hardcoded_contract_run_invoke_tx_fails_invalid_tx_version() {
         basic_test_setup(2);
         let none_origin = RuntimeOrigin::none();
 
-        let sender_add = get_account_address(AccountType::NoValidate);
+        let sender_add = get_account_address(AccountType::NoValidate, 0);
         let transaction = InvokeTransaction { version: 3, sender_address: sender_add, ..InvokeTransaction::default() };
 
         assert_err!(Starknet::invoke(none_origin, transaction), Error::<MockRuntime>::TransactionExecutionFailed);
@@ -105,7 +105,7 @@ fn given_hardcoded_contract_run_invoke_tx_then_it_works() {
                         .unwrap(),
                 ),
                 data: bounded_vec![
-                    Felt252Wrapper::from_hex_be(BLOCKIFIER_ACCOUNT_ADDRESS).unwrap(),
+                    Felt252Wrapper::from_hex_be(BLOCKIFIER_ACCOUNT_ADDRESS_CAIRO_0).unwrap(),
                     Felt252Wrapper::from_hex_be("0x000000000000000000000000000000000000000000000000000000000000dead")
                         .unwrap(),
                     Felt252Wrapper::from_hex_be("0x000000000000000000000000000000000000000000000000000000000000d106")
@@ -140,7 +140,7 @@ fn given_hardcoded_contract_run_invoke_tx_then_event_is_emitted() {
                     .unwrap()
             ],
             data: bounded_vec!(Felt252Wrapper::from_hex_be("0x1").unwrap()),
-            from_address: Felt252Wrapper::from_hex_be(TEST_CONTRACT_ADDRESS).unwrap(),
+            from_address: Felt252Wrapper::from_hex_be(TEST_CONTRACT_ADDRESS_CAIRO_0).unwrap(),
             transaction_hash,
         };
         let expected_fee_transfer_event = EventWrapper {
@@ -202,9 +202,10 @@ fn given_hardcoded_contract_run_invoke_tx_then_multiple_events_is_emitted() {
     new_test_ext().execute_with(|| {
         basic_test_setup(2);
 
-        let emit_contract_address = Felt252Wrapper::from_hex_be(MULTIPLE_EVENT_EMITTING_CONTRACT_ADDRESS).unwrap();
+        let emit_contract_address =
+            Felt252Wrapper::from_hex_be(MULTIPLE_EVENT_EMITTING_CONTRACT_ADDRESS_CAIRO_0).unwrap();
 
-        let sender_account = get_account_address(AccountType::NoValidate);
+        let sender_account = get_account_address(AccountType::NoValidate, 0);
 
         let emit_internal_selector = Felt252Wrapper::from(get_selector_from_name("emit_internal").unwrap());
         let emit_external_selector = Felt252Wrapper::from(get_selector_from_name("emit_external").unwrap());
@@ -435,10 +436,10 @@ fn given_hardcoded_contract_run_invoke_with_inner_call_in_validate_then_it_fails
 
         let mut transaction = get_invoke_dummy();
         transaction.signature = bounded_vec!(Felt252Wrapper::ONE, Felt252Wrapper::ONE);
-        transaction.sender_address = get_account_address(AccountType::InnerCall);
+        transaction.sender_address = get_account_address(AccountType::InnerCall, 0);
 
         let storage_key = get_storage_var_address("destination", &[]).unwrap();
-        let destination = Felt252Wrapper::from_hex_be(TEST_CONTRACT_ADDRESS).unwrap();
+        let destination = Felt252Wrapper::from_hex_be(TEST_CONTRACT_ADDRESS_CAIRO_0).unwrap();
         StorageView::<MockRuntime>::insert(
             (transaction.sender_address, Felt252Wrapper::from(storage_key.0.0)),
             Into::<Felt252Wrapper>::into(destination),

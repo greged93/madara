@@ -1,7 +1,7 @@
 use frame_support::assert_ok;
 
 use super::mock::*;
-use crate::tests::get_invoke_dummy;
+use crate::tests::cairo0::get_invoke_dummy;
 
 #[test]
 fn estimates_tx_fee_successfully() {

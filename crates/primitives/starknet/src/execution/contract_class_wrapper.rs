@@ -273,7 +273,7 @@ mod tests {
     #[test]
     fn test_serialize_deserialize_contract_class() {
         let contract_class: ContractClassWrapper =
-            serde_json::from_slice(include_bytes!("../../../../../cairo-contracts/build/NoValidateAccount.json"))
+            serde_json::from_slice(include_bytes!("../../../../../cairo0-contracts/build/NoValidateAccount.json"))
                 .unwrap();
         let contract_class_serialized = serde_json::to_vec(&contract_class).unwrap();
         let contract_class_deserialized: ContractClassWrapper =
@@ -285,7 +285,7 @@ mod tests {
     #[test]
     fn test_encode_decode_contract_class() {
         let contract_class: ContractClassWrapper =
-            get_contract_class(include_bytes!("../../../../../cairo-contracts/build/NoValidateAccount.json")).into();
+            get_contract_class(include_bytes!("../../../../../cairo0-contracts/build/NoValidateAccount.json")).into();
         let encoded = contract_class.encode();
         pretty_assertions::assert_eq!(contract_class, ContractClassWrapper::decode(&mut &encoded[..]).unwrap())
     }

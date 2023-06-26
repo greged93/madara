@@ -1,3 +1,4 @@
+use blockifier::execution::contract_class::EntryPointV1;
 use blockifier::execution::errors::EntryPointExecutionError;
 use serde::{Deserialize, Serialize};
 use sp_core::ConstU32;
@@ -68,7 +69,7 @@ impl From<EntryPointTypeWrapper> for EntryPointType {
     }
 }
 
-/// Representation of a Starknet Entry Point.
+/// Representation of a Starknet Entry Point for Cairo 0
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct EntryPointWrapper(EntryPoint);
 /// SCALE trait.
@@ -124,6 +125,48 @@ impl TryFrom<EntryPointWrapper> for LegacyContractEntryPoint {
         let selector = FieldElement::from_bytes_be(&value.0.selector.0.0)?;
         let offset = value.0.offset.0 as u64;
         Ok(Self { selector, offset })
+    }
+}
+
+/// Representation of a Starknet Entry Point.
+#[derive(Debug, Default, Clone, Eq, PartialEq)]
+pub struct EntryPointV1Wrapper(EntryPointV1);
+/// SCALE trait.
+impl Encode for EntryPointV1Wrapper {
+    fn encode_to<T: Output + ?Sized>(&self, dest: &mut T) {
+        dest.write(&self.0.selector.0.0);
+        dest.write(&self.0.offset.0.to_be_bytes());
+        dest.write(&Encode::encode(&self.0.builtins));
+    }
+}
+/// SCALE trait.
+impl Decode for EntryPointV1Wrapper {
+    fn decode<I: Input>(input: &mut I) -> Result<Self, Error> {
+        let mut selector = [0u8; 32];
+        // Use this because usize can be of different byte size.
+        let mut offset = [0u8; core::mem::size_of::<usize>()];
+        input.read(&mut selector)?;
+        input.read(&mut offset)?;
+
+        Ok(EntryPointV1Wrapper(EntryPointV1 {
+            selector: EntryPointSelector(StarkFelt(selector)),
+            offset: EntryPointOffset(usize::from_be_bytes(offset)),
+            builtins: Decode::decode(input)?,
+        }))
+    }
+}
+
+// Traits implementation.
+
+impl From<EntryPointV1> for EntryPointV1Wrapper {
+    fn from(entry_point: EntryPointV1) -> Self {
+        Self(entry_point)
+    }
+}
+
+impl From<EntryPointV1Wrapper> for EntryPointV1 {
+    fn from(entry_point: EntryPointV1Wrapper) -> Self {
+        entry_point.0
     }
 }
 

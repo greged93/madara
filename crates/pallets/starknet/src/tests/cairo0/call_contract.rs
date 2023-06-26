@@ -4,7 +4,7 @@ use mp_starknet::transaction::types::InvokeTransaction;
 use sp_core::ConstU32;
 use sp_runtime::BoundedVec;
 
-use crate::tests::constants::TOKEN_CONTRACT_CLASS_HASH;
+use crate::tests::constants::TOKEN_CONTRACT_CLASS_HASH_CAIRO_0;
 use crate::tests::mock::*;
 
 #[test]
@@ -13,7 +13,7 @@ fn given_call_contract_call_works() {
         basic_test_setup(1);
 
         let origin = RuntimeOrigin::none();
-        let sender_account = get_account_address(AccountType::NoValidate);
+        let sender_account = get_account_address(AccountType::NoValidate, 0);
 
         // Deploy ERC20 Contract, as it is already declared in fixtures
         // Deploy ERC20 contract
@@ -23,7 +23,7 @@ fn given_call_contract_call_works() {
                 .unwrap(), // deploy_contract selector
             Felt252Wrapper::from_hex_be("0x0000000000000000000000000000000000000000000000000000000000000009")
                 .unwrap(), // Calldata len
-            Felt252Wrapper::from_hex_be(TOKEN_CONTRACT_CLASS_HASH).unwrap(), // Class hash
+            Felt252Wrapper::from_hex_be(TOKEN_CONTRACT_CLASS_HASH_CAIRO_0).unwrap(), // Class hash
             Felt252Wrapper::ONE, // Contract address salt
             Felt252Wrapper::from_hex_be("0x6").unwrap(), // Constructor_calldata_len
             Felt252Wrapper::from_hex_be("0xA").unwrap(), // Name

@@ -7,7 +7,7 @@ use sp_runtime::transaction_validity::{TransactionSource, TransactionValidityErr
 use starknet_crypto::FieldElement;
 
 use crate::tests::mock::*;
-use crate::tests::utils::{get_contract_class, sign_message_hash};
+use crate::tests::utils::{get_contract_class_cairo_0, sign_message_hash};
 use crate::Error;
 
 #[test]
@@ -15,9 +15,9 @@ fn given_contract_declare_tx_works_once_not_twice() {
     new_test_ext().execute_with(|| {
         basic_test_setup(2);
         let none_origin = RuntimeOrigin::none();
-        let account_addr = get_account_address(AccountType::NoValidate);
+        let account_addr = get_account_address(AccountType::NoValidate, 0);
 
-        let erc20_class = ContractClassWrapper::try_from(get_contract_class("ERC20.json")).unwrap();
+        let erc20_class = ContractClassWrapper::try_from(get_contract_class_cairo_0("ERC20.json")).unwrap();
         let erc20_class_hash =
             Felt252Wrapper::from_hex_be("0x057eca87f4b19852cfd4551cf4706ababc6251a8781733a0a11cf8e94211da95").unwrap();
 
@@ -49,7 +49,7 @@ fn given_contract_declare_tx_fails_sender_not_deployed() {
         let contract_address =
             Felt252Wrapper::from_hex_be("0x03e437FB56Bb213f5708Fcd6966502070e276c093ec271aA33433b89E21fd31f").unwrap();
 
-        let erc20_class = ContractClassWrapper::try_from(get_contract_class("ERC20.json")).unwrap();
+        let erc20_class = ContractClassWrapper::try_from(get_contract_class_cairo_0("ERC20.json")).unwrap();
         let erc20_class_hash =
             Felt252Wrapper::from_hex_be("0x057eca87f4b19852cfd4551cf4706ababc6251a8781733a0a11cf8e94211da95").unwrap();
 
@@ -73,9 +73,9 @@ fn given_contract_declare_tx_fails_wrong_tx_version() {
         basic_test_setup(2);
 
         let none_origin = RuntimeOrigin::none();
-        let account_addr = get_account_address(AccountType::Argent);
+        let account_addr = get_account_address(AccountType::Argent, 0);
 
-        let erc20_class = ContractClassWrapper::try_from(get_contract_class("ERC20.json")).unwrap();
+        let erc20_class = ContractClassWrapper::try_from(get_contract_class_cairo_0("ERC20.json")).unwrap();
         // TODO: Delete when the class hash can be derived from ContractClass
         let erc20_class_hash =
             Felt252Wrapper::from_hex_be("0x057eca87f4b19852cfd4551cf4706ababc6251a8781733a0a11cf8e94211da95").unwrap();
@@ -102,9 +102,9 @@ fn given_contract_declare_on_openzeppelin_account_then_it_works() {
         basic_test_setup(2);
         let none_origin = RuntimeOrigin::none();
 
-        let account_addr = get_account_address(AccountType::Openzeppelin);
+        let account_addr = get_account_address(AccountType::Openzeppelin, 0);
 
-        let erc20_class = ContractClassWrapper::try_from(get_contract_class("ERC20.json")).unwrap();
+        let erc20_class = ContractClassWrapper::try_from(get_contract_class_cairo_0("ERC20.json")).unwrap();
         let erc20_class_hash =
             Felt252Wrapper::from_hex_be("0x057eca87f4b19852cfd4551cf4706ababc6251a8781733a0a11cf8e94211da95").unwrap();
 
@@ -131,7 +131,7 @@ fn given_contract_declare_on_openzeppelin_account_then_it_works() {
         assert_ok!(Starknet::declare(none_origin, transaction));
         assert_eq!(
             Starknet::contract_class_by_class_hash(erc20_class_hash).unwrap(),
-            ContractClassWrapper::try_from(get_contract_class("ERC20.json")).unwrap()
+            ContractClassWrapper::try_from(get_contract_class_cairo_0("ERC20.json")).unwrap()
         );
     });
 }
@@ -142,9 +142,9 @@ fn given_contract_declare_on_openzeppelin_account_with_incorrect_signature_then_
         basic_test_setup(2);
         let none_origin = RuntimeOrigin::none();
 
-        let account_addr = get_account_address(AccountType::Openzeppelin);
+        let account_addr = get_account_address(AccountType::Openzeppelin, 0);
 
-        let erc20_class = ContractClassWrapper::try_from(get_contract_class("ERC20.json")).unwrap();
+        let erc20_class = ContractClassWrapper::try_from(get_contract_class_cairo_0("ERC20.json")).unwrap();
         let erc20_class_hash =
             Felt252Wrapper::from_hex_be("0x057eca87f4b19852cfd4551cf4706ababc6251a8781733a0a11cf8e94211da95").unwrap();
 
@@ -174,9 +174,9 @@ fn given_contract_declare_on_braavos_account_then_it_works() {
         basic_test_setup(2);
         let none_origin = RuntimeOrigin::none();
 
-        let account_addr = get_account_address(AccountType::Braavos);
+        let account_addr = get_account_address(AccountType::Braavos, 0);
 
-        let erc20_class = ContractClassWrapper::try_from(get_contract_class("ERC20.json")).unwrap();
+        let erc20_class = ContractClassWrapper::try_from(get_contract_class_cairo_0("ERC20.json")).unwrap();
         let erc20_class_hash =
             Felt252Wrapper::from_hex_be("0x057eca87f4b19852cfd4551cf4706ababc6251a8781733a0a11cf8e94211da95").unwrap();
 
@@ -203,7 +203,7 @@ fn given_contract_declare_on_braavos_account_then_it_works() {
         assert_ok!(Starknet::declare(none_origin, transaction));
         assert_eq!(
             Starknet::contract_class_by_class_hash(erc20_class_hash).unwrap(),
-            ContractClassWrapper::try_from(get_contract_class("ERC20.json")).unwrap()
+            ContractClassWrapper::try_from(get_contract_class_cairo_0("ERC20.json")).unwrap()
         );
     });
 }
@@ -214,9 +214,9 @@ fn given_contract_declare_on_braavos_account_with_incorrect_signature_then_it_fa
         basic_test_setup(2);
         let none_origin = RuntimeOrigin::none();
 
-        let account_addr = get_account_address(AccountType::Braavos);
+        let account_addr = get_account_address(AccountType::Braavos, 0);
 
-        let erc20_class = ContractClassWrapper::try_from(get_contract_class("ERC20.json")).unwrap();
+        let erc20_class = ContractClassWrapper::try_from(get_contract_class_cairo_0("ERC20.json")).unwrap();
         let erc20_class_hash =
             Felt252Wrapper::from_hex_be("0x057eca87f4b19852cfd4551cf4706ababc6251a8781733a0a11cf8e94211da95").unwrap();
 
@@ -246,9 +246,9 @@ fn given_contract_declare_on_argent_account_then_it_works() {
         basic_test_setup(2);
         let none_origin = RuntimeOrigin::none();
 
-        let account_addr = get_account_address(AccountType::Argent);
+        let account_addr = get_account_address(AccountType::Argent, 0);
 
-        let erc20_class = ContractClassWrapper::try_from(get_contract_class("ERC20.json")).unwrap();
+        let erc20_class = ContractClassWrapper::try_from(get_contract_class_cairo_0("ERC20.json")).unwrap();
         let erc20_class_hash =
             Felt252Wrapper::from_hex_be("0x057eca87f4b19852cfd4551cf4706ababc6251a8781733a0a11cf8e94211da95").unwrap();
 
@@ -275,7 +275,7 @@ fn given_contract_declare_on_argent_account_then_it_works() {
         assert_ok!(Starknet::declare(none_origin, transaction));
         assert_eq!(
             Starknet::contract_class_by_class_hash(erc20_class_hash).unwrap(),
-            ContractClassWrapper::try_from(get_contract_class("ERC20.json")).unwrap()
+            ContractClassWrapper::try_from(get_contract_class_cairo_0("ERC20.json")).unwrap()
         );
     });
 }
@@ -286,9 +286,9 @@ fn given_contract_declare_on_argent_account_with_incorrect_signature_then_it_fai
         basic_test_setup(2);
         let none_origin = RuntimeOrigin::none();
 
-        let account_addr = get_account_address(AccountType::Argent);
+        let account_addr = get_account_address(AccountType::Argent, 0);
 
-        let erc20_class = ContractClassWrapper::try_from(get_contract_class("ERC20.json")).unwrap();
+        let erc20_class = ContractClassWrapper::try_from(get_contract_class_cairo_0("ERC20.json")).unwrap();
         let erc20_class_hash =
             Felt252Wrapper::from_hex_be("057eca87f4b19852cfd4551cf4706ababc6251a8781733a0a11cf8e94211da95").unwrap();
 
@@ -316,9 +316,9 @@ fn given_contract_declare_on_argent_account_with_incorrect_signature_then_it_fai
 fn test_verify_tx_longevity() {
     new_test_ext().execute_with(|| {
         basic_test_setup(2);
-        let account_addr = get_account_address(AccountType::NoValidate);
+        let account_addr = get_account_address(AccountType::NoValidate, 0);
 
-        let erc20_class = ContractClassWrapper::try_from(get_contract_class("ERC20.json")).unwrap();
+        let erc20_class = ContractClassWrapper::try_from(get_contract_class_cairo_0("ERC20.json")).unwrap();
         let erc20_class_hash =
             Felt252Wrapper::from_hex_be("0x057eca87f4b19852cfd4551cf4706ababc6251a8781733a0a11cf8e94211da95").unwrap();
 
@@ -343,9 +343,9 @@ fn test_verify_no_require_tag() {
     new_test_ext().execute_with(|| {
         basic_test_setup(2);
 
-        let account_addr = get_account_address(AccountType::NoValidate);
+        let account_addr = get_account_address(AccountType::NoValidate, 0);
 
-        let erc20_class = ContractClassWrapper::try_from(get_contract_class("ERC20.json")).unwrap();
+        let erc20_class = ContractClassWrapper::try_from(get_contract_class_cairo_0("ERC20.json")).unwrap();
         let erc20_class_hash =
             Felt252Wrapper::from_hex_be("057eca87f4b19852cfd4551cf4706ababc6251a8781733a0a11cf8e94211da95").unwrap();
 
@@ -380,9 +380,9 @@ fn test_verify_require_tag() {
     new_test_ext().execute_with(|| {
         basic_test_setup(2);
 
-        let account_addr = get_account_address(AccountType::NoValidate);
+        let account_addr = get_account_address(AccountType::NoValidate, 0);
 
-        let erc20_class = ContractClassWrapper::try_from(get_contract_class("ERC20.json")).unwrap();
+        let erc20_class = ContractClassWrapper::try_from(get_contract_class_cairo_0("ERC20.json")).unwrap();
         let erc20_class_hash =
             Felt252Wrapper::from_hex_be("057eca87f4b19852cfd4551cf4706ababc6251a8781733a0a11cf8e94211da95").unwrap();
 

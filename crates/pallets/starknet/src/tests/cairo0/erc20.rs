@@ -4,13 +4,13 @@ use mp_starknet::crypto::commitment::calculate_invoke_tx_hash;
 use mp_starknet::execution::types::{ContractClassWrapper, Felt252Wrapper};
 use mp_starknet::transaction::types::{EventWrapper, InvokeTransaction};
 
-use crate::tests::constants::TOKEN_CONTRACT_CLASS_HASH;
+use crate::tests::constants::TOKEN_CONTRACT_CLASS_HASH_CAIRO_0;
 use crate::tests::mock::*;
 use crate::tests::utils::get_contract_class_wrapper;
 use crate::Event;
 
 lazy_static! {
-    static ref ERC20_CONTRACT_CLASS: ContractClassWrapper = get_contract_class_wrapper("ERC20.json");
+    static ref ERC20_CONTRACT_CLASS: ContractClassWrapper = get_contract_class_wrapper("ERC20.json", 0);
 }
 
 #[test]
@@ -18,7 +18,7 @@ fn given_erc20_transfer_when_invoke_then_it_works() {
     new_test_ext().execute_with(|| {
         basic_test_setup(1);
         let origin = RuntimeOrigin::none();
-        let sender_account = get_account_address(AccountType::NoValidate);
+        let sender_account = get_account_address(AccountType::NoValidate, 0);
         // ERC20 is already declared for the fees.
         // Deploy ERC20 contract
         let deploy_transaction = InvokeTransaction {
@@ -29,7 +29,7 @@ fn given_erc20_transfer_when_invoke_then_it_works() {
                 Felt252Wrapper::from_hex_be("0x02730079d734ee55315f4f141eaed376bddd8c2133523d223a344c5604e0f7f8")
                     .unwrap(), // deploy_contract selector
                 Felt252Wrapper::from_hex_be("0x9").unwrap(), // Calldata len
-                Felt252Wrapper::from_hex_be(TOKEN_CONTRACT_CLASS_HASH).unwrap(), // Class hash
+                Felt252Wrapper::from_hex_be(TOKEN_CONTRACT_CLASS_HASH_CAIRO_0).unwrap(), // Class hash
                 Felt252Wrapper::ONE, // Contract address salt
                 Felt252Wrapper::from_hex_be("0x6").unwrap(), // Constructor_calldata_len
                 Felt252Wrapper::from_hex_be("0xA").unwrap(), // Name
@@ -62,9 +62,10 @@ fn given_erc20_transfer_when_invoke_then_it_works() {
                     expected_erc20_address, // Contract address
                     Felt252Wrapper::ZERO,   /* Deployer (always 0 with this
                                              * account contract) */
-                    Felt252Wrapper::from_hex_be(TOKEN_CONTRACT_CLASS_HASH).unwrap(), // Class hash
+                    Felt252Wrapper::from_hex_be(TOKEN_CONTRACT_CLASS_HASH_CAIRO_0).unwrap(), // Class hash
                     Felt252Wrapper::from_hex_be("0x0000000000000000000000000000000000000000000000000000000000000006")
-                        .unwrap(), // Constructor calldata len
+                        .unwrap(), /* Constructor calldata
+                                                                                              * len */
                     Felt252Wrapper::from_hex_be("0x000000000000000000000000000000000000000000000000000000000000000a")
                         .unwrap(), // Name
                     Felt252Wrapper::from_hex_be("0x0000000000000000000000000000000000000000000000000000000000000001")

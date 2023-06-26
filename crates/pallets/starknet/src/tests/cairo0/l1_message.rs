@@ -5,7 +5,7 @@ use sp_runtime::traits::ValidateUnsigned;
 use sp_runtime::transaction_validity::TransactionSource;
 
 use crate::tests::mock::*;
-use crate::tests::utils::get_contract_class;
+use crate::tests::utils::get_contract_class_cairo_0;
 use crate::Error;
 
 #[test]
@@ -19,7 +19,7 @@ fn given_contract_l1_message_fails_sender_not_deployed() {
         let contract_address =
             Felt252Wrapper::from_hex_be("0x03e437FB56Bb213f5708Fcd6966502070e276c093ec271aA33433b89E21fd31f").unwrap();
 
-        let erc20_class = ContractClassWrapper::try_from(get_contract_class("ERC20.json")).unwrap();
+        let erc20_class = ContractClassWrapper::try_from(get_contract_class_cairo_0("ERC20.json")).unwrap();
 
         let transaction = DeclareTransaction {
             sender_address: contract_address,

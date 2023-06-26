@@ -618,7 +618,7 @@ fn get_try_into_and_expected_value(
 }
 
 fn get_compressed_legacy_contract_class() -> CompressedLegacyContractClass {
-    let contract_class_bytes = include_bytes!("../../../../../cairo-contracts/build/test.json");
+    let contract_class_bytes = include_bytes!("../../../../../cairo0-contracts/build/test.json");
 
     let contract_class: LegacyContractClass = serde_json::from_slice(contract_class_bytes).unwrap();
     let compressed_contract_class: CompressedLegacyContractClass = contract_class.compress().unwrap();
@@ -627,7 +627,7 @@ fn get_compressed_legacy_contract_class() -> CompressedLegacyContractClass {
 }
 
 fn get_flattened_sierra_contract_class() -> FlattenedSierraClass {
-    let contract_class_bytes = include_bytes!("../../../../../cairo-contracts/build/Example.sierra.json");
+    let contract_class_bytes = include_bytes!("../../../../../cairo0-contracts/build/Example.sierra.json");
 
     let contract_class: SierraClass = serde_json::from_slice(contract_class_bytes).unwrap();
     let flattened_contract_class: FlattenedSierraClass = contract_class.flatten().unwrap();

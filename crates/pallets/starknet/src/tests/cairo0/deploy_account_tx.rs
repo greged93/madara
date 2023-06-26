@@ -17,7 +17,7 @@ fn given_contract_run_deploy_account_tx_works() {
         // TEST ACCOUNT CONTRACT
         // - ref testnet tx(0x0751b4b5b95652ad71b1721845882c3852af17e2ed0c8d93554b5b292abb9810)
         let salt = "0x03b37cbe4e9eac89d54c5f7cc6329a63a63e8c8db2bf936f981041e086752463";
-        let (test_addr, account_class_hash, calldata) = account_helper(salt, AccountType::NoValidate);
+        let (test_addr, account_class_hash, calldata) = account_helper(salt, AccountType::NoValidate, 0);
 
         set_infinite_tokens(test_addr);
 
@@ -67,7 +67,7 @@ fn given_contract_run_deploy_account_tx_twice_fails() {
     new_test_ext().execute_with(|| {
         basic_test_setup(2);
         let salt = "0x03b37cbe4e9eac89d54c5f7cc6329a63a63e8c8db2bf936f981041e086752463";
-        let (address, account_class_hash, calldata) = account_helper(salt, AccountType::NoValidate);
+        let (address, account_class_hash, calldata) = account_helper(salt, AccountType::NoValidate, 0);
         set_infinite_tokens(address);
 
         // TEST ACCOUNT CONTRACT
@@ -103,7 +103,7 @@ fn given_contract_run_deploy_account_tx_undeclared_then_it_fails() {
     new_test_ext().execute_with(|| {
         basic_test_setup(2);
         let none_origin = RuntimeOrigin::none();
-        let account_class_hash = get_account_class_hash(AccountType::Argent);
+        let account_class_hash = get_account_class_hash_cairo_0(AccountType::Argent);
         let transaction = DeployAccountTransaction {
             account_class_hash,
             version: 1,
@@ -130,7 +130,7 @@ fn given_contract_run_deploy_account_tx_fails_wrong_tx_version() {
         // TEST ACCOUNT CONTRACT
         // - ref testnet tx(0x0751b4b5b95652ad71b1721845882c3852af17e2ed0c8d93554b5b292abb9810)
         let salt = "0x03b37cbe4e9eac89d54c5f7cc6329a63a63e8c8db2bf936f981041e086752463";
-        let (_, account_class_hash, calldata) = account_helper(salt, AccountType::Argent);
+        let (_, account_class_hash, calldata) = account_helper(salt, AccountType::Argent, 0);
 
         let wrong_tx_version = 50_u8;
 
@@ -167,7 +167,7 @@ fn given_contract_run_deploy_account_openzeppelin_tx_works() {
         // TEST ACCOUNT CONTRACT
         // - ref testnet tx(0x0751b4b5b95652ad71b1721845882c3852af17e2ed0c8d93554b5b292abb9810)
         let salt = "0x03b37cbe4e9eac89d54c5f7cc6329a63a63e8c8db2bf936f981041e086752463";
-        let (_, account_class_hash, calldata) = account_helper(salt, AccountType::Openzeppelin);
+        let (_, account_class_hash, calldata) = account_helper(salt, AccountType::Openzeppelin, 0);
 
         let mut transaction = DeployAccountTransaction {
             account_class_hash,
@@ -208,7 +208,7 @@ fn given_contract_run_deploy_account_openzeppelin_with_incorrect_signature_then_
         // TEST ACCOUNT CONTRACT
         // - ref testnet tx(0x0751b4b5b95652ad71b1721845882c3852af17e2ed0c8d93554b5b292abb9810)
         let salt = "0x03b37cbe4e9eac89d54c5f7cc6329a63a63e8c8db2bf936f981041e086752463";
-        let (_, account_class_hash, calldata) = account_helper(salt, AccountType::Openzeppelin);
+        let (_, account_class_hash, calldata) = account_helper(salt, AccountType::Openzeppelin, 0);
 
         let transaction = DeployAccountTransaction {
             account_class_hash,
@@ -246,7 +246,7 @@ fn given_contract_run_deploy_account_argent_tx_works() {
         // TEST ACCOUNT CONTRACT
         // - ref testnet tx(0x0751b4b5b95652ad71b1721845882c3852af17e2ed0c8d93554b5b292abb9810)
         let salt = "0x03b37cbe4e9eac89d54c5f7cc6329a63a63e8c8db2bf936f981041e086752463";
-        let (_, account_class_hash, calldata) = account_helper(salt, AccountType::Argent);
+        let (_, account_class_hash, calldata) = account_helper(salt, AccountType::Argent, 0);
 
         let mut transaction = DeployAccountTransaction {
             account_class_hash,
@@ -288,7 +288,7 @@ fn given_contract_run_deploy_account_argent_with_incorrect_signature_then_it_fai
         // TEST ACCOUNT CONTRACT
         // - ref testnet tx(0x0751b4b5b95652ad71b1721845882c3852af17e2ed0c8d93554b5b292abb9810)
         let salt = "0x03b37cbe4e9eac89d54c5f7cc6329a63a63e8c8db2bf936f981041e086752463";
-        let (_, account_class_hash, calldata) = account_helper(salt, AccountType::Argent);
+        let (_, account_class_hash, calldata) = account_helper(salt, AccountType::Argent, 0);
 
         let transaction = DeployAccountTransaction {
             account_class_hash,
@@ -326,7 +326,7 @@ fn given_contract_run_deploy_account_braavos_tx_works() {
         // TEST ACCOUNT CONTRACT
         // - ref testnet tx(0x0751b4b5b95652ad71b1721845882c3852af17e2ed0c8d93554b5b292abb9810)
         let salt = "0x03b37cbe4e9eac89d54c5f7cc6329a63a63e8c8db2bf936f981041e086752463";
-        let (_, proxy_class_hash, mut calldata) = account_helper(salt, AccountType::BraavosProxy);
+        let (_, proxy_class_hash, mut calldata) = account_helper(salt, AccountType::BraavosProxy, 0);
         calldata.push("0x1");
         calldata.push(ACCOUNT_PUBLIC_KEY);
 
@@ -372,7 +372,7 @@ fn given_contract_run_deploy_account_braavos_with_incorrect_signature_then_it_fa
         // TEST ACCOUNT CONTRACT
         // - ref testnet tx(0x0751b4b5b95652ad71b1721845882c3852af17e2ed0c8d93554b5b292abb9810)
         let salt = "0x03b37cbe4e9eac89d54c5f7cc6329a63a63e8c8db2bf936f981041e086752463";
-        let (test_addr, proxy_class_hash, mut calldata) = account_helper(salt, AccountType::BraavosProxy);
+        let (test_addr, proxy_class_hash, mut calldata) = account_helper(salt, AccountType::BraavosProxy, 0);
         calldata.push("0x1");
         calldata.push(ACCOUNT_PUBLIC_KEY);
 
@@ -410,7 +410,7 @@ fn test_verify_tx_longevity() {
         // TEST ACCOUNT CONTRACT
         // - ref testnet tx(0x0751b4b5b95652ad71b1721845882c3852af17e2ed0c8d93554b5b292abb9810)
         let salt = "0x03b37cbe4e9eac89d54c5f7cc6329a63a63e8c8db2bf936f981041e086752463";
-        let (_, account_class_hash, calldata) = account_helper(salt, AccountType::NoValidate);
+        let (_, account_class_hash, calldata) = account_helper(salt, AccountType::NoValidate, 0);
 
         let transaction = DeployAccountTransaction {
             account_class_hash,
