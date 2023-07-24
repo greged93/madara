@@ -156,50 +156,36 @@ fn testnet_genesis(
     initial_authorities: Vec<(AuraId, GrandpaId)>,
     _enable_println: bool,
 ) -> GenesisConfig {
-    // ACCOUNT CONTRACT
-    let no_validate_account_class =
-        get_contract_class(&read_file_to_string("../../cairo-contracts/build/NoValidateAccount.json"), 0);
-    let no_validate_account_class_hash = Felt252Wrapper::from_hex_be(NO_VALIDATE_ACCOUNT_CLASS_HASH).unwrap();
-    let no_validate_account_address = Felt252Wrapper::from_hex_be(NO_VALIDATE_ACCOUNT_ADDRESS).unwrap();
-
-    // ARGENT ACCOUNT CONTRACT
-    let argent_account_class =
-        get_contract_class(&read_file_to_string("../../cairo-contracts/build/ArgentAccount.json"), 0);
-    let argent_account_class_hash = Felt252Wrapper::from_hex_be(ARGENT_ACCOUNT_CLASS_HASH).unwrap();
-    let argent_account_address = Felt252Wrapper::from_hex_be(ARGENT_ACCOUNT_ADDRESS).unwrap();
-    let argent_proxy_class = get_contract_class(&read_file_to_string("../../cairo-contracts/build/Proxy.json"), 0);
-    let argent_proxy_class_hash = Felt252Wrapper::from_hex_be(ARGENT_PROXY_CLASS_HASH).unwrap();
-
-    // BRAAVOS ACCOUNT CONTRACT
-    let braavos_account_class = get_contract_class(&read_file_to_string("src/genesis_assets/Account.json"), 0);
-    let braavos_account_class_hash = Felt252Wrapper::from_hex_be(BRAAVOS_ACCOUNT_CLASS_HASH).unwrap();
-    let braavos_account_base_impl_class =
-        get_contract_class(&read_file_to_string("src/genesis_assets/AccountBaseImpl.json"), 0);
-    let braavos_account_base_impl_class_hash =
-        Felt252Wrapper::from_hex_be(BRAAVOS_ACCOUNT_BASE_IMPL_CLASS_HASH).unwrap();
-    let braavos_call_aggregator_class =
-        get_contract_class(&read_file_to_string("src/genesis_assets/CallAggregator.json"), 0);
-    let braavos_call_aggregator_class_hash = Felt252Wrapper::from_hex_be(BRAAVOS_CALL_AGGREGATOR_CLASS_HASH).unwrap();
-    let braavos_proxy_class = get_contract_class(&read_file_to_string("../../cairo-contracts/build/Proxy.json"), 0);
-    let braavos_proxy_class_hash = Felt252Wrapper::from_hex_be(BRAAVOS_PROXY_CLASS_HASH).unwrap();
-
     // OZ ACCOUNT CONTRACT
     let oz_account_class =
         get_contract_class(&read_file_to_string("../../cairo-contracts/build/OpenzeppelinAccount.json"), 0);
     let oz_account_class_hash = Felt252Wrapper::from_hex_be(OZ_ACCOUNT_CLASS_HASH).unwrap();
     let oz_account_address = Felt252Wrapper::from_hex_be(OZ_ACCOUNT_ADDRESS).unwrap();
 
-    // CAIRO 1 ACCOUNT CONTRACT
-    let cairo_1_no_validate_account_class =
-        get_contract_class(&read_file_to_string("../../cairo-contracts/build/cairo_1/NoValidateAccount.casm.json"), 1);
-    let cairo_1_no_validate_account_class_hash =
-        Felt252Wrapper::from_hex_be(CAIRO_1_NO_VALIDATE_ACCOUNT_CLASS_HASH).unwrap();
-    let cairo_1_no_validate_account_address = Felt252Wrapper::from_hex_be(CAIRO_1_NO_VALIDATE_ACCOUNT_ADDRESS).unwrap();
+    // Kakarot
+    let kakarot_class = get_contract_class(&read_file_to_string("../../cairo-contracts/build/kakarot.json"), 0);
+    let kakarot_class_hash = Felt252Wrapper::from_hex_be(KAKAROT_CLASS_HASH).unwrap();
+    let kakarot_address = Felt252Wrapper::from_hex_be(KAKAROT_ADDRESS).unwrap();
 
-    // TEST CONTRACT
-    let test_contract_class = get_contract_class(&read_file_to_string("../../cairo-contracts/build/test.json"), 0);
-    let test_contract_class_hash = Felt252Wrapper::from_hex_be(TEST_CONTRACT_CLASS_HASH).unwrap();
-    let test_contract_address = Felt252Wrapper::from_hex_be(TEST_CONTRACT_ADDRESS).unwrap();
+    // Block registry
+    let block_hash_registry_class =
+        get_contract_class(&read_file_to_string("../../cairo-contracts/build/blockhash_registry.json"), 0);
+    let block_hash_registry_class_hash = Felt252Wrapper::from_hex_be(BLOCKHASH_REGISTRY_CLASS_HASH).unwrap();
+    let block_hash_registry_address = Felt252Wrapper::from_hex_be(BLOCKHASH_REGISTRY_ADDRESS).unwrap();
+
+    // Proxy
+    let proxy_class = get_contract_class(&read_file_to_string("../../cairo-contracts/build/ProxyKakarot.json"), 0);
+    let proxy_class_hash = Felt252Wrapper::from_hex_be(PROXY_CLASS_HASH).unwrap();
+
+    // EOA
+    let eoa_class =
+        get_contract_class(&read_file_to_string("../../cairo-contracts/build/externally_owned_account.json"), 0);
+    let eoa_class_hash = Felt252Wrapper::from_hex_be(EOA_CLASS_HASH).unwrap();
+
+    // Contract account
+    let contract_account_class =
+        get_contract_class(&read_file_to_string("../../cairo-contracts/build/contract_account.json"), 0);
+    let contract_account_class_hash = Felt252Wrapper::from_hex_be(CONTRACT_ACCOUNT_CLASS_HASH).unwrap();
 
     // Fee token
     let fee_token_address = Felt252Wrapper::from_hex_be(FEE_TOKEN_ADDRESS).unwrap();
@@ -207,20 +193,12 @@ fn testnet_genesis(
 
     // ERC20 CONTRACT
     let erc20_class = get_contract_class(&read_file_to_string("../../cairo-contracts/build/ERC20.json"), 0);
-    let token_class_hash = Felt252Wrapper::from_hex_be(ERC20_CLASS_HASH).unwrap();
-    let token_contract_address = Felt252Wrapper::from_hex_be(ERC20_ADDRESS).unwrap();
-
-    // ERC721 CONTRACT
-    let erc721_class = get_contract_class(&read_file_to_string("../../cairo-contracts/build/ERC721.json"), 0);
-    let nft_class_hash = Felt252Wrapper::from_hex_be(ERC721_CLASS_HASH).unwrap();
-    let nft_contract_address = Felt252Wrapper::from_hex_be(ERC721_ADDRESS).unwrap();
 
     // UDC CONTRACT
     let udc_class = get_contract_class(&read_file_to_string("../../cairo-contracts/build/UniversalDeployer.json"), 0);
     let udc_class_hash = Felt252Wrapper::from_hex_be(UDC_CLASS_HASH).unwrap();
     let udc_contract_address = Felt252Wrapper::from_hex_be(UDC_CONTRACT_ADDRESS).unwrap();
 
-    let public_key = Felt252Wrapper::from_hex_be(PUBLIC_KEY).unwrap();
     let chain_id = Felt252Wrapper(FieldElement::from_byte_slice_be(&CHAIN_ID_STARKNET_TESTNET.to_be_bytes()).unwrap());
 
     GenesisConfig {
@@ -235,49 +213,23 @@ fn testnet_genesis(
         /// Starknet Genesis configuration.
         starknet: madara_runtime::pallet_starknet::GenesisConfig {
             contracts: vec![
-                (no_validate_account_address, no_validate_account_class_hash),
-                (cairo_1_no_validate_account_address, cairo_1_no_validate_account_class_hash),
-                (test_contract_address, test_contract_class_hash),
-                (token_contract_address, token_class_hash),
-                (nft_contract_address, nft_class_hash),
                 (fee_token_address, fee_token_class_hash),
-                (argent_account_address, argent_account_class_hash),
-                (oz_account_address, oz_account_class_hash),
                 (udc_contract_address, udc_class_hash),
+                (oz_account_address, oz_account_class_hash),
+                (kakarot_address, kakarot_class_hash),
+                (block_hash_registry_address, block_hash_registry_class_hash),
             ],
             contract_classes: vec![
-                (no_validate_account_class_hash, no_validate_account_class),
-                (cairo_1_no_validate_account_class_hash, cairo_1_no_validate_account_class),
-                (argent_account_class_hash, argent_account_class),
-                (oz_account_class_hash, oz_account_class),
-                (argent_proxy_class_hash, argent_proxy_class),
-                (test_contract_class_hash, test_contract_class),
-                (token_class_hash, erc20_class.clone()),
                 (fee_token_class_hash, erc20_class),
-                (nft_class_hash, erc721_class),
                 (udc_class_hash, udc_class),
-                (braavos_account_class_hash, braavos_account_class),
-                (braavos_account_base_impl_class_hash, braavos_account_base_impl_class),
-                (braavos_call_aggregator_class_hash, braavos_call_aggregator_class),
-                (braavos_proxy_class_hash, braavos_proxy_class),
+                (oz_account_class_hash, oz_account_class),
+                (kakarot_class_hash, kakarot_class),
+                (block_hash_registry_class_hash, block_hash_registry_class),
+                (proxy_class_hash, proxy_class),
+                (eoa_class_hash, eoa_class),
+                (contract_account_class_hash, contract_account_class),
             ],
             storage: vec![
-                (
-                    get_storage_key(&fee_token_address, "ERC20_balances", &[no_validate_account_address], 0),
-                    Felt252Wrapper::from(u128::MAX),
-                ),
-                (
-                    get_storage_key(&fee_token_address, "ERC20_balances", &[no_validate_account_address], 1),
-                    Felt252Wrapper::from(u128::MAX),
-                ),
-                (
-                    get_storage_key(&fee_token_address, "ERC20_balances", &[cairo_1_no_validate_account_address], 0),
-                    Felt252Wrapper::from(u128::MAX),
-                ),
-                (
-                    get_storage_key(&fee_token_address, "ERC20_balances", &[cairo_1_no_validate_account_address], 1),
-                    Felt252Wrapper::from(u128::MAX),
-                ),
                 (
                     get_storage_key(&fee_token_address, "ERC20_balances", &[oz_account_address], 0),
                     Felt252Wrapper::from(u128::MAX),
@@ -287,33 +239,16 @@ fn testnet_genesis(
                     Felt252Wrapper::from(u128::MAX),
                 ),
                 (
-                    get_storage_key(&fee_token_address, "ERC20_balances", &[argent_account_address], 0),
-                    Felt252Wrapper::from(u128::MAX),
-                ),
-                (
-                    get_storage_key(&token_contract_address, "ERC20_balances", &[no_validate_account_address], 0),
-                    Felt252Wrapper::from(u128::MAX),
-                ),
-                (
-                    get_storage_key(&token_contract_address, "ERC20_balances", &[no_validate_account_address], 1),
-                    Felt252Wrapper::from(u128::MAX),
-                ),
-                (
-                    get_storage_key(&fee_token_address, "ERC20_balances", &[public_key], 0),
-                    Felt252Wrapper::from(u128::MAX),
-                ),
-                (
-                    get_storage_key(&argent_account_address, "_signer", &[], 0),
-                    Felt252Wrapper::from_hex_be(PUBLIC_KEY).unwrap(),
-                ),
-                (
                     get_storage_key(&oz_account_address, "Account_public_key", &[], 0),
                     Felt252Wrapper::from_hex_be(PUBLIC_KEY).unwrap(),
                 ),
-                (
-                    get_storage_key(&nft_contract_address, "Ownable_owner", &[], 0),
-                    Felt252Wrapper::from_hex_be(NO_VALIDATE_ACCOUNT_ADDRESS).unwrap(),
-                ),
+                (get_storage_key(&kakarot_address, "Ownable_owner", &[], 0), oz_account_address),
+                (get_storage_key(&kakarot_address, "native_token_address", &[], 0), fee_token_address),
+                (get_storage_key(&kakarot_address, "contract_account_class_hash", &[], 0), contract_account_class_hash),
+                (get_storage_key(&kakarot_address, "externally_owned_account_class_hash", &[], 0), eoa_class_hash),
+                (get_storage_key(&kakarot_address, "account_proxy_class_hash", &[], 0), proxy_class_hash),
+                (get_storage_key(&kakarot_address, "blockhash_registry_address", &[], 0), block_hash_registry_address),
+                (get_storage_key(&block_hash_registry_address, "Ownable_owner", &[], 0), kakarot_address),
             ],
             fee_token_address,
             _phantom: Default::default(),
