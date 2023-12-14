@@ -95,7 +95,7 @@ impl From<Transaction> for TransactionSigned {
                     invoke.calldata().iter().filter_map(|x| u8::try_from(*x).ok()).collect::<Vec<_>>();
                 TransactionSigned::decode(&mut &rlp_encoded_eth_transaction[..]).unwrap_or_default() // TODO: convert to TryFrom and return an error
             }
-            _ => unimplemented!(), // TODO: convert to TryFrom and return an error
+            _ => TransactionSigned::default(), // TODO: convert to TryFrom and return an error
         }
     }
 }
