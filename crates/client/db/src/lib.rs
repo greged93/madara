@@ -54,6 +54,8 @@ pub(crate) mod columns {
     ///
     /// This column should only be accessed if the `--cache` flag is enabled.
     pub const STARKNET_TRANSACTION_HASHES_CACHE: u32 = 5;
+    /// This column is used to map a Ethereum transaction hashes to a Starknet transaction hash.
+    pub const ETHEREUM_TRANSACTION_HASHES_MAPPING: u32 = 6;
 }
 
 pub mod static_keys {

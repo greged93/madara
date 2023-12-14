@@ -15,6 +15,7 @@ pub struct MappingCommitment<B: BlockT> {
     pub block_hash: B::Hash,
     pub starknet_block_hash: H256,
     pub starknet_transaction_hashes: Vec<H256>,
+    pub eth_transaction_hashes: Vec<H256>,
 }
 
 /// Allow interaction with the mapping db
@@ -64,7 +65,7 @@ impl<B: BlockT> MappingDb<B> {
         Ok(())
     }
 
-    /// Register that a Substate block has been seen and map it to the Statknet block it contains
+    /// Register that a Substrate block has been seen and map it to the Starknet block it contains
     pub fn write_hashes(&self, commitment: MappingCommitment<B>) -> Result<(), String> {
         let _lock = self.write_lock.lock();
 
@@ -92,11 +93,18 @@ impl<B: BlockT> MappingDb<B> {
 
         transaction.set(crate::columns::SYNCED_MAPPING, &commitment.block_hash.encode(), &true.encode());
 
-        for transaction_hash in commitment.starknet_transaction_hashes.iter() {
+        for (starknet_transaction_hash, eth_transaction_hash) in
+            commitment.starknet_transaction_hashes.iter().zip(commitment.eth_transaction_hashes.iter())
+        {
             transaction.set(
                 crate::columns::TRANSACTION_MAPPING,
-                &transaction_hash.encode(),
+                &starknet_transaction_hash.encode(),
                 &commitment.block_hash.encode(),
+            );
+            transaction.set(
+                crate::columns::ETHEREUM_TRANSACTION_HASHES_MAPPING,
+                &eth_transaction_hash.encode(),
+                &starknet_transaction_hash.encode(),
             );
         }
 
@@ -124,6 +132,21 @@ impl<B: BlockT> MappingDb<B> {
     pub fn block_hash_from_transaction_hash(&self, transaction_hash: H256) -> Result<Option<B::Hash>, String> {
         match self.db.get(crate::columns::TRANSACTION_MAPPING, &transaction_hash.encode()) {
             Some(raw) => Ok(Some(<B::Hash>::decode(&mut &raw[..]).map_err(|e| format!("{:?}", e))?)),
+            None => Ok(None),
+        }
+    }
+
+    /// Retrieves the starknet transaction hash from a given ethereum transaction hash.
+    ///
+    /// # Arguments
+    ///
+    /// * `eth_transaction_hash` - the ethereum transaction hash to search for.
+    pub fn starknet_transaction_hash_from_ethereum_transaction_hash(
+        &self,
+        eth_transaction_hash: H256,
+    ) -> Result<Option<H256>, String> {
+        match self.db.get(crate::columns::ETHEREUM_TRANSACTION_HASHES_MAPPING, &eth_transaction_hash.encode()) {
+            Some(raw) => Ok(Some(H256::decode(&mut &raw[..]).map_err(|e| format!("{:?}", e))?)),
             None => Ok(None),
         }
     }

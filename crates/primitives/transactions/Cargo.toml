@@ -21,6 +21,8 @@ starknet-core = { workspace = true }
 starknet-crypto = { workspace = true, features = ["alloc"] }
 starknet-ff = { workspace = true, features = ["alloc"] }
 starknet_api = { workspace = true }
+reth-primitives = { workspace = true, default-features = false }
+reth-rlp = { workspace = true, default-features = false }
 
 # Optional (client)
 cairo-lang-casm-contract-class = { workspace = true, optional = true }

@@ -25,6 +25,8 @@ use mp_transactions::compute_hash::ComputeTransactionHash;
 use mp_transactions::to_starknet_core_transaction::to_starknet_core_tx;
 use mp_transactions::{TransactionStatus, UserTransaction};
 use pallet_starknet_runtime_api::{ConvertTransactionRuntimeApi, StarknetRuntimeApi};
+use reth_primitives::TransactionSigned;
+use reth_rlp::Decodable;
 use sc_client_api::backend::{Backend, StorageProvider};
 use sc_client_api::BlockBackend;
 use sc_network_sync::SyncingService;
@@ -257,6 +259,13 @@ where
     ) -> RpcResult<InvokeTransactionResult> {
         let best_block_hash = self.client.info().best_hash;
 
+        let rlp_encoded_eth_transaction =
+            invoke_transaction.calldata.iter().filter_map(|x| u8::try_from(*x).ok()).collect::<Vec<_>>();
+        let eth_transaction = TransactionSigned::decode(&mut &rlp_encoded_eth_transaction[..]).map_err(|e| {
+            error!("Failed to decode RLP encoded ETH transaction: {e}");
+            StarknetRpcApiError::InternalServerError
+        })?;
+
         let transaction: UserTransaction = invoke_transaction.try_into().map_err(|e| {
             error!("Failed to convert BroadcastedInvokeTransaction to UserTransaction: {e}");
             StarknetRpcApiError::InternalServerError
@@ -268,7 +277,12 @@ where
 
         let chain_id = Felt252Wrapper(self.chain_id()?.0);
 
-        Ok(InvokeTransactionResult { transaction_hash: transaction.compute_hash::<H>(chain_id, false).into() })
+        let transaction_hash =
+            FieldElement::from_bytes_be(&eth_transaction.hash().to_fixed_bytes()).map_err(|err| {
+                error!("Failed to convert ETH transaction hash to bytes: {err}");
+                StarknetRpcApiError::InternalServerError
+            })?;
+        Ok(InvokeTransactionResult { transaction_hash })
     }
 
     /// Add an Deploy Account Transaction
@@ -1208,11 +1222,17 @@ where
     /// - `TOO_MANY_KEYS_IN_FILTER` if there are too many keys in the filter, which may exceed the
     ///   system's capacity.
     fn get_transaction_by_hash(&self, transaction_hash: FieldElement) -> RpcResult<Transaction> {
-        let substrate_block_hash_from_db = self
+        let starknet_transaction_hash = self
             .backend
             .mapping()
-            .block_hash_from_transaction_hash(H256::from(transaction_hash.to_bytes_be()))
+            .starknet_transaction_hash_from_ethereum_transaction_hash(H256::from(transaction_hash.to_bytes_be()))
             .map_err(|e| {
+                error!("Failed to get transaction's starknet hash from mapping_db: {e}");
+                StarknetRpcApiError::TxnHashNotFound
+            })?
+            .unwrap_or_else(|| H256::from(transaction_hash.to_bytes_be()));
+        let substrate_block_hash_from_db =
+            self.backend.mapping().block_hash_from_transaction_hash(starknet_transaction_hash).map_err(|e| {
                 error!("Failed to get transaction's substrate block hash from mapping_db: {e}");
                 StarknetRpcApiError::TxnHashNotFound
             })?;

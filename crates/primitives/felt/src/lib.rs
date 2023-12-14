@@ -157,6 +157,16 @@ impl From<u128> for Felt252Wrapper {
     }
 }
 
+/// [`Felt252Wrapper`] to [`u8`].
+/// Overflow may occur and return [`Felt252WrapperError::ValueTooLarge`].
+impl TryFrom<Felt252Wrapper> for u8 {
+    type Error = Felt252WrapperError;
+
+    fn try_from(value: Felt252Wrapper) -> Result<Self, Self::Error> {
+        u8::try_from(value.0).map_err(|_| Felt252WrapperError::ValueTooLarge)
+    }
+}
+
 /// [`Felt252Wrapper`] to [`u64`].
 /// Overflow may occur and return [`Felt252WrapperError::ValueTooLarge`].
 impl TryFrom<Felt252Wrapper> for u64 {

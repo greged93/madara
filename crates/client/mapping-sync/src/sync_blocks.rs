@@ -3,6 +3,7 @@ use mp_digest_log::{find_starknet_block, FindLogError};
 use mp_hashers::HasherT;
 use mp_transactions::compute_hash::ComputeTransactionHash;
 use pallet_starknet_runtime_api::StarknetRuntimeApi;
+use reth_primitives::TransactionSigned;
 use sc_client_api::backend::{Backend, StorageProvider};
 use sp_api::ProvideRuntimeApi;
 use sp_blockchain::{Backend as _, HeaderBackend};
@@ -51,6 +52,11 @@ where
                                 .iter()
                                 .map(|tx| H256::from(tx.compute_hash::<H>(chain_id, false)))
                                 .collect(),
+                            eth_transaction_hashes: digest_starknet_block
+                                .transactions()
+                                .iter()
+                                .map(|tx| H256::from(TransactionSigned::from(tx.clone()).hash().as_fixed_bytes()))
+                                .collect(),
                         };
 
                         backend.mapping().write_hashes(mapping_commitment)
@@ -88,6 +94,7 @@ where
         block_hash: substrate_block_hash,
         starknet_block_hash: block_hash.into(),
         starknet_transaction_hashes: Vec::new(),
+        eth_transaction_hashes: Vec::new(),
     };
 
     backend.mapping().write_hashes(mapping_commitment)?;

@@ -18,6 +18,8 @@ use alloc::vec::Vec;
 use blockifier::execution::contract_class::ContractClass;
 use blockifier::transaction::transaction_types::TransactionType;
 use derive_more::From;
+use reth_primitives::TransactionSigned;
+use reth_rlp::Decodable;
 use starknet_api::transaction::Fee;
 use starknet_core::types::{TransactionExecutionStatus, TransactionFinalityStatus};
 use starknet_ff::FieldElement;
@@ -83,6 +85,19 @@ pub enum Transaction {
     DeployAccount(DeployAccountTransaction),
     Invoke(InvokeTransaction),
     L1Handler(HandleL1MessageTransaction),
+}
+
+impl From<Transaction> for TransactionSigned {
+    fn from(value: Transaction) -> Self {
+        match value {
+            Transaction::Invoke(invoke) => {
+                let rlp_encoded_eth_transaction =
+                    invoke.calldata().iter().filter_map(|x| u8::try_from(*x).ok()).collect::<Vec<_>>();
+                TransactionSigned::decode(&mut &rlp_encoded_eth_transaction[..]).unwrap_or_default() // TODO: convert to TryFrom and return an error
+            }
+            _ => unimplemented!(), // TODO: convert to TryFrom and return an error
+        }
+    }
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, From)]
