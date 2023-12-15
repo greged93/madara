@@ -260,11 +260,10 @@ where
         let best_block_hash = self.client.info().best_hash;
 
         let rlp_encoded_eth_transaction =
-            invoke_transaction.calldata.iter().filter_map(|x| u8::try_from(*x).ok()).collect::<Vec<_>>();
+            invoke_transaction.calldata.iter().skip(6).filter_map(|x| u8::try_from(*x).ok()).collect::<Vec<_>>();
         let eth_transaction = TransactionSigned::decode(&mut &rlp_encoded_eth_transaction[..]).map_err(|e| {
             error!("Failed to decode RLP encoded ETH transaction: {e}");
-            StarknetRpcApiError::InternalServerError
-        })?;
+        });
 
         let transaction: UserTransaction = invoke_transaction.try_into().map_err(|e| {
             error!("Failed to convert BroadcastedInvokeTransaction to UserTransaction: {e}");
@@ -277,11 +276,15 @@ where
 
         let chain_id = Felt252Wrapper(self.chain_id()?.0);
 
-        let transaction_hash =
-            FieldElement::from_bytes_be(&eth_transaction.hash().to_fixed_bytes()).map_err(|err| {
-                error!("Failed to convert ETH transaction hash to bytes: {err}");
-                StarknetRpcApiError::InternalServerError
-            })?;
+        let transaction_hash = match &eth_transaction {
+            Err(_) => transaction.compute_hash::<H>(chain_id, false).into(),
+            Ok(eth_transaction) => {
+                FieldElement::from_bytes_be(&eth_transaction.hash().to_fixed_bytes()).map_err(|err| {
+                    error!("Failed to convert ETH transaction hash to bytes: {err}");
+                    StarknetRpcApiError::InternalServerError
+                })?
+            }
+        };
         Ok(InvokeTransactionResult { transaction_hash })
     }
 

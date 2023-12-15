@@ -42,7 +42,7 @@ pub(crate) mod columns {
     // ===== /!\ ===================================================================================
     // MUST BE INCREMENTED WHEN A NEW COLUMN IN ADDED
     // ===== /!\ ===================================================================================
-    pub const NUM_COLUMNS: u32 = 6;
+    pub const NUM_COLUMNS: u32 = 7;
 
     pub const META: u32 = 0;
     pub const BLOCK_MAPPING: u32 = 1;
