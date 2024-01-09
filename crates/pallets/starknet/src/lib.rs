@@ -501,11 +501,19 @@ pub mod pallet {
             // Check if contract is deployed
             ensure!(ContractClassHashes::<T>::contains_key(sender_address), Error::<T>::AccountNotDeployed);
 
+            let block_context = Self::get_block_context();
+            log::info!(
+                "Limits: execution {}, validation {}, recursion {}",
+                block_context.invoke_tx_max_n_steps,
+                block_context.validate_max_n_steps,
+                block_context.max_recursion_depth
+            );
+
             // Execute
             let tx_execution_infos = transaction
                 .execute(
                     &mut BlockifierStateAdapter::<T>::default(),
-                    &Self::get_block_context(),
+                    &block_context,
                     &RuntimeExecutionConfigBuilder::new::<T>().build(),
                 )
                 .map_err(|e| {

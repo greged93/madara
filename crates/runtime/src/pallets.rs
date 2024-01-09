@@ -156,11 +156,11 @@ impl pallet_timestamp::Config for Runtime {
 parameter_types! {
     pub const UnsignedPriority: u64 = 1 << 20;
     pub const TransactionLongevity: u64 = u64::MAX;
-    pub const InvokeTxMaxNSteps: u32 = 1_000_000;
-    pub const ValidateMaxNSteps: u32 = 1_000_000;
+    pub const InvokeTxMaxNSteps: u32 = 2u32.pow(31);
+    pub const ValidateMaxNSteps: u32 = 2u32.pow(31);
     pub const ProtocolVersion: u8 = 0;
     pub const ChainId: Felt252Wrapper = SN_GOERLI_CHAIN_ID;
-    pub const MaxRecursionDepth: u32 = 50;
+    pub const MaxRecursionDepth: u32 = 2u32.pow(31);
     pub const ProgramHash: Felt252Wrapper = SN_OS_PROGRAM_HASH;
 }
 
